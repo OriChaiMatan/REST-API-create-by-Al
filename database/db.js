@@ -32,6 +32,23 @@ export function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)
   `);
 
+  // Create events table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      date TEXT NOT NULL,
+      location TEXT DEFAULT '',
+      createdAt TEXT NOT NULL
+    )
+  `);
+
+  // Create index on date for faster lookups
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_events_date ON events(date)
+  `);
+
   console.log('Database initialized successfully');
 }
 

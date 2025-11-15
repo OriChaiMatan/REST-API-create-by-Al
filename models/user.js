@@ -1,17 +1,18 @@
 // User model (without classes)
 import { db } from '../database/db.js';
+import bcrypt from 'bcryptjs';
 
 /**
  * Creates a new user object
  * @param {string} email - User's email address
- * @param {string} password - User's password (will be hashed later)
+ * @param {string} password - User's password (will be hashed)
  * @param {string} name - User's name (optional)
  * @returns {Object} User object
  */
 export function createUser(email, password, name = '') {
   return {
     email,
-    password, // In production, this should be hashed
+    password, // Password will be hashed in insertUser
     name,
     createdAt: new Date().toISOString()
   };
@@ -20,12 +21,15 @@ export function createUser(email, password, name = '') {
 /**
  * Insert a new user into the database
  * @param {string} email - User's email address
- * @param {string} password - User's password
+ * @param {string} password - User's password (will be hashed)
  * @param {string} name - User's name (optional)
  * @returns {Object} Created user object with id
  */
 export function insertUser(email, password, name = '') {
-  const user = createUser(email, password, name);
+  // Hash the password before storing
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  
+  const user = createUser(email, hashedPassword, name);
   
   const stmt = db.prepare(`
     INSERT INTO users (email, password, name, createdAt)
@@ -36,7 +40,9 @@ export function insertUser(email, password, name = '') {
   
   return {
     id: result.lastInsertRowid,
-    ...user
+    email: user.email,
+    name: user.name,
+    createdAt: user.createdAt
   };
 }
 
@@ -82,8 +88,10 @@ export function updateUser(id, updates) {
   
   for (const [key, value] of Object.entries(updates)) {
     if (allowedFields.includes(key) && value !== undefined) {
+      // Hash password if it's being updated
+      const processedValue = key === 'password' ? bcrypt.hashSync(value, 10) : value;
       fields.push(`${key} = ?`);
-      values.push(value);
+      values.push(processedValue);
     }
   }
   
@@ -105,6 +113,16 @@ export function updateUser(id, updates) {
   }
   
   return findUserById(id);
+}
+
+/**
+ * Compare a plain text password with a hashed password
+ * @param {string} plainPassword - Plain text password to compare
+ * @param {string} hashedPassword - Hashed password from database
+ * @returns {boolean} True if passwords match
+ */
+export function comparePassword(plainPassword, hashedPassword) {
+  return bcrypt.compareSync(plainPassword, hashedPassword);
 }
 
 /**

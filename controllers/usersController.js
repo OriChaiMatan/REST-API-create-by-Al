@@ -1,4 +1,4 @@
-import { insertUser, findUserByEmail, validateUserData } from '../models/user.js';
+import { insertUser, findUserByEmail, validateUserData, comparePassword } from '../models/user.js';
 
 /**
  * Handle user signup
@@ -73,9 +73,8 @@ export async function login(req, res) {
       });
     }
 
-    // Check password (plain text comparison)
-    // In production, this should compare hashed passwords
-    if (user.password !== password) {
+    // Check password using bcrypt comparison
+    if (!comparePassword(password, user.password)) {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password'

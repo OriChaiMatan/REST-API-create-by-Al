@@ -1,8 +1,4 @@
-import { createUser, validateUserData } from '../models/user.js';
-
-// In-memory storage (temporary, until database is added)
-// This will be replaced with database storage later
-const users = [];
+import { insertUser, findUserByEmail, validateUserData } from '../models/user.js';
 
 /**
  * Handle user signup
@@ -23,8 +19,8 @@ export async function signup(req, res) {
       });
     }
 
-    // Check if user already exists (temporary check in memory)
-    const existingUser = users.find(user => user.email === email);
+    // Check if user already exists
+    const existingUser = findUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({
         success: false,
@@ -32,11 +28,8 @@ export async function signup(req, res) {
       });
     }
 
-    // Create new user
-    const newUser = createUser(email, password, name);
-    
-    // Store user (temporary, in memory)
-    users.push(newUser);
+    // Create and insert new user into database
+    const newUser = insertUser(email, password, name);
 
     // Return success response (without password)
     const { password: _, ...userResponse } = newUser;
@@ -71,8 +64,8 @@ export async function login(req, res) {
       });
     }
 
-    // Find user (temporary check in memory)
-    const user = users.find(u => u.email === email);
+    // Find user in database
+    const user = findUserByEmail(email);
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -80,7 +73,7 @@ export async function login(req, res) {
       });
     }
 
-    // Check password (temporary, plain text comparison)
+    // Check password (plain text comparison)
     // In production, this should compare hashed passwords
     if (user.password !== password) {
       return res.status(401).json({

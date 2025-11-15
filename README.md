@@ -1,1 +1,4 @@
 # REST-API-create-by-Al
+This repository accompanies the essential course for developers who want to harness AI to work faster, smarter and more efficiently. The future of development isn’t about replacing developers with AI—it’s about giving developers the strongest tools possible. In this course, you’ll learn how to combine your programming skills with AI assistants like GitHub Copilot, Cursor AI and ChatGPT to accelerate your workflow, improve code quality and build complex applications with confidence.
+
+Through focused lessons and a hands-on project, you’ll see how AI can help you plan applications, generate code, write tests, troubleshoot issues and streamline repetitive tasks—while you remain fully in control of the architecture, logic and decision-making. This repository contains the demo REST API project built throughout the course, showcasing how to integrate AI tools effectively at every stage of development.
